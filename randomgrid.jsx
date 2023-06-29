@@ -4,7 +4,7 @@ var currentpage;
 
 var gapsize;
 
-var myDialog = app.dialogs.add({ name: "User Interface Example Script", canCancel: true });
+var myDialog = app.dialogs.add({ name: "Options", canCancel: true });
 with (myDialog) {
     //Add a dialog column.
     with (dialogColumns.add()) {
