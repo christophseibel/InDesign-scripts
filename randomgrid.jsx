@@ -1,21 +1,24 @@
+#include "seedrandom.js";
+
 var doc = app.activeDocument;
 
 var currentpage;
 
 var gapsize;
 
-var myDialog = app.dialogs.add({ name: "Options", canCancel: true });
-with (myDialog) {
-    //Add a dialog column.
+var horizontaldivide;
+var verticaldivide;
+
+var seed = Math.random();
+
+var optionDialog = app.dialogs.add({ name: "Options", canCancel: true });
+with (optionDialog) {
     with (dialogColumns.add()) {
-        //Create another border panel.
         with (borderPanels.add()) {
             with (dialogColumns.add()) {
                 staticTexts.add({ staticLabel: "Page:" });
             }
             with (dialogColumns.add()) {
-                //Create a number entry field. Note that this field uses editValue
-                //rather than editText (as a textEditBox would).
                 var pagenum = parseInt(app.activeWindow.activePage.name);
                 var INcurrentpage = integerEditboxes.add({ editValue: pagenum });
             }
@@ -25,12 +28,33 @@ with (myDialog) {
                 staticTexts.add({ staticLabel: "Gapsize:" });
             }
             with (dialogColumns.add()) {
-                //Create a number entry field. Note that this field uses editValue
-                //rather than editText (as a textEditBox would).
                 var INcurrentgapsize = integerEditboxes.add({ editValue: 4 });
             }
         }
-        //Create another border panel.
+        with (borderPanels.add()) {
+            with (dialogColumns.add()) {
+                staticTexts.add({ staticLabel: "Seed:" });
+            }
+            with (dialogColumns.add()) {
+                var currentseed = realEditboxes.add({ editValue: seed });
+            }
+        }
+        with (borderPanels.add()) {
+            staticTexts.add({ staticLabel: "Divide Horizontaly:" });
+            var myRadioButtonGroup = radiobuttonGroups.add();
+            with (myRadioButtonGroup) {
+                var horizontalbutton = radiobuttonControls.add({ staticLabel: "From Bottom", checkedState: true });
+                radiobuttonControls.add({ staticLabel: "From Top" });
+            }
+        }
+        with (borderPanels.add()) {
+            staticTexts.add({ staticLabel: "Divide Verticaly:" });
+            var myRadioButtonGroup = radiobuttonGroups.add();
+            with (myRadioButtonGroup) {
+                var verticalbutton = radiobuttonControls.add({ staticLabel: "From Left", checkedState: true });
+                radiobuttonControls.add({ staticLabel: "From Right" });
+            }
+        }
         with (borderPanels.add()) {
             staticTexts.add({ staticLabel: "Action to perform:" });
             var myRadioButtonGroup = radiobuttonGroups.add();
@@ -41,10 +65,15 @@ with (myDialog) {
         }
     }
 }
-//Display the dialog box.
-if (myDialog.show() == true) {
+
+if (optionDialog.show() == true) {
     currentpage = doc.pages.item(INcurrentpage.editContents);
     gapsize = parseInt(INcurrentgapsize.editContents);
+
+    horizontaldivide = horizontalbutton.checkedState;
+    verticaldivide = verticalbutton.checkedState;
+    seed = currentseed.editContents;
+
     if (generatebutton.checkedState) {
         cleargrid();
         generategrid();
@@ -52,10 +81,10 @@ if (myDialog.show() == true) {
     else if (clearbutton.checkedState) {
         cleargrid();
     }
-    myDialog.destroy();
+    optionDialog.destroy();
 }
 else {
-    myDialog.destroy()
+    optionDialog.destroy()
 }
 
 
@@ -76,8 +105,14 @@ function generategrid() {
         for (var a = 0; a < 5; a++) {
             var height = marginbottom - margintop;
             var divider = getRandomInt(2, 7);
-            var guidepos = marginbottom - (height / divider);
-            marginbottom = guidepos;
+            if (horizontaldivide) {
+                var guidepos = marginbottom - (height / divider);
+                marginbottom = guidepos;
+            }
+            else {
+                var guidepos = margintop + (height / divider);
+                margintop = guidepos;
+            }
 
             var options = { orientation: HorizontalOrVertical.horizontal, location: guidepos };
             gridline(options, gapsize);
@@ -86,8 +121,14 @@ function generategrid() {
         for (var a = 0; a < 5; a++) {
             var width = marginright - marginleft;
             var divider = getRandomInt(2, 7);
-            var guidepos = marginright - (width / divider);
-            marginright = guidepos;
+            if (verticaldivide) {
+                var guidepos = marginright - (width / divider);
+                marginright = guidepos;
+            }
+            else {
+                var guidepos = marginleft + (width / divider);
+                marginleft = guidepos;
+            }
 
             var options = { orientation: HorizontalOrVertical.vertical, location: guidepos };
             gridline(options, gapsize);
@@ -114,7 +155,12 @@ function gridline(INoptions, gapsize) {
 }
 
 function getRandomInt(min, max) {
+    var myrng = new Math.seedrandom(seed);
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+    var random = myrng();
+    if (isNaN(random)) {
+        random = 0;
+    }
+    return Math.floor(random * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
