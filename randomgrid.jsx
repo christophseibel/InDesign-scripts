@@ -1,7 +1,5 @@
 #include "seedrandom.js";
 
-test
-
 var doc = app.activeDocument;
 
 var currentpage;
