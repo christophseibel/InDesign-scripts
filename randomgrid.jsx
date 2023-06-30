@@ -73,6 +73,7 @@ if (optionDialog.show() == true) {
     horizontaldivide = horizontalbutton.checkedState;
     verticaldivide = verticalbutton.checkedState;
     seed = currentseed.editContents;
+    var myrng = new Math.seedrandom(seed);
 
     if (generatebutton.checkedState) {
         cleargrid();
@@ -155,7 +156,6 @@ function gridline(INoptions, gapsize) {
 }
 
 function getRandomInt(min, max) {
-    var myrng = new Math.seedrandom(seed);
     min = Math.ceil(min);
     max = Math.floor(max);
     var random = myrng();
