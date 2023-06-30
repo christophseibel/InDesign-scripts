@@ -155,7 +155,6 @@ function gridline(INoptions, gapsize) {
 }
 
 function getRandomInt(min, max) {
-    var myrng = new Math.seedrandom(seed);
     min = Math.ceil(min);
     max = Math.floor(max);
     var random = myrng();
